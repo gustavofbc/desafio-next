@@ -3,20 +3,23 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import Modal from "react-modal";
-// import ModalInfo from "../components/ModalInfo";
 
-import { Container, Content } from "../styles/Home.module";
+import { Container, ModalContent, Content, Card } from "../styles/Home.module";
 
 export default function Home() {
   const [users, setUsers] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState("");
-  const [userSelected, setUserSelected] = useState({});
+  const [userSelected, setUserSelected] = useState();
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   async function openModal() {
     setModalIsOpen(true);
+  }
+
+  function closeModal() {
+    setModalIsOpen(false);
   }
 
   async function searchUserById(id) {
@@ -25,10 +28,6 @@ export default function Home() {
     setUserSelected(user.data);
     openModal();
     return user;
-  }
-
-  function closeModal() {
-    setModalIsOpen(false);
   }
 
   useEffect(() => {
@@ -44,19 +43,7 @@ export default function Home() {
     fetchUsers();
   }, [setUsers, setIsLoading]);
 
-  function handleTableHeader() {
-    if (isLoading === false && users) {
-      const dateUser = users[0];
-      if (dateUser) {
-        const headers = Object.keys(dateUser);
-        return headers.map((attr) => {
-          return <th key={attr}>{attr}</th>;
-        });
-      }
-    }
-  }
-
-  function handleTable() {
+  function handleCard() {
     let filtros;
 
     if (Array.isArray(users)) {
@@ -70,22 +57,69 @@ export default function Home() {
           );
         });
       }
-      return Array.isArray(users)
-        ? filtros.map((user) => {
-            return (
-              <tr key={user.id} onClick={() => searchUserById(user.id)}>
-                <td>{user.id}</td>
-                <td>{user.name}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.address.city}</td>
-                <td>{user.phone}</td>
-                <td>{user.website}</td>
-                <td>{user.company.name}</td>
-              </tr>
-            );
-          })
-        : null;
+
+      if (isLoading === false && users) {
+        return Array.isArray(filtros)
+          ? filtros.map((user) => {
+              return (
+                <Card key={user.id} onClick={() => searchUserById(user.id)}>
+                  <span>{user.id}</span>
+                  <p>
+                    Nome: <span>{user.name}</span>
+                  </p>
+                  <p>
+                    Endereço: <span>{user.address.city}</span>
+                  </p>
+                </Card>
+              );
+            })
+          : null;
+      }
+    }
+  }
+
+  function handleTable() {
+    if (userSelected) {
+      const keys = Object.keys(userSelected);
+      return [userSelected].map((user) => {
+        return (
+          <tr key={user.id}>
+            <td>
+              <span>{keys[0]}:</span> {user.id}
+            </td>
+            <td>
+              <span>{keys[1]}:</span> {user.name}
+            </td>
+            <td>
+              <span>{keys[2]}:</span> {user.username}
+            </td>
+            <td>
+              <span>{keys[3]}:</span> {user.email}
+            </td>
+            <td>
+              <span>{keys[4]}:</span>
+              {` ${user.address.street},
+                ${user.address.suite},
+                ${user.address.city},
+                ${user.address.zipcode},
+                ${user.address.geo.lat},
+                ${user.address.geo.lat}`}
+            </td>
+            <td>
+              <span>{keys[5]}:</span> {user.phone}
+            </td>
+            <td>
+              <span>{keys[6]}:</span> {user.website}
+            </td>
+            <td>
+              <span>{keys[7]}:</span>
+              {` ${user.company.name},
+                ${user.company.catchPhrase}
+                ${user.company.bs}`}
+            </td>
+          </tr>
+        );
+      });
     }
   }
   return isLoading ? (
@@ -97,20 +131,12 @@ export default function Home() {
         onRequestClose={closeModal}
         ariaHideApp={false}
       >
-        <div>
-          <ul>
-            <li key={userSelected.id}>{userSelected.name}</li>
-            <li>{userSelected.username}</li>
-            <li>{userSelected.email}</li>
-            {/* <li>{userSelected.address}</li> */}
-            <li>{userSelected.phone}</li>
-            <li>{userSelected.website}</li>
-            {/* <li>{userSelected.company}</li> */}
-          </ul>
-        </div>
-        <button className="button close" onClick={closeModal}>
-          Fechar
-        </button>
+        <ModalContent>
+          <table>
+            <tbody>{handleTable()}</tbody>
+          </table>
+        </ModalContent>
+        <button onClick={closeModal}>Fechar</button>
       </Modal>
       <h1>Filter</h1>
       <input
@@ -118,15 +144,7 @@ export default function Home() {
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Search by name or address:"
       />
-
-      <Content>
-        <table>
-          <thead>
-            <tr>{handleTableHeader()}</tr>
-          </thead>
-          <tbody>{handleTable()}</tbody>
-        </table>
-      </Content>
+      <Content>{handleCard()}</Content>
     </Container>
   );
 }
