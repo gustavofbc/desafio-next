@@ -44,13 +44,13 @@ export default function Home() {
   }, [setUsers, setIsLoading]);
 
   function handleCard() {
-    let filtros;
+    let filters;
 
     if (Array.isArray(users)) {
       if (filter == "") {
-        filtros = users;
+        filters = users;
       } else {
-        filtros = users.filter((user) => {
+        filters = users.filter((user) => {
           return (
             user.name.toUpperCase().startsWith(filter.toUpperCase()) ||
             user.address.city.toUpperCase().startsWith(filter.toUpperCase())
@@ -59,16 +59,16 @@ export default function Home() {
       }
 
       if (isLoading === false && users) {
-        return Array.isArray(filtros)
-          ? filtros.map((user) => {
+        return Array.isArray(filters)
+          ? filters.map((user) => {
               return (
                 <Card key={user.id} onClick={() => searchUserById(user.id)}>
                   <span>{user.id}</span>
                   <p>
-                    Nome: <span>{user.name}</span>
+                    Name: <span>{user.name}</span>
                   </p>
                   <p>
-                    Endereço: <span>{user.address.city}</span>
+                    Address: <span>{user.address.city}</span>
                   </p>
                 </Card>
               );
