@@ -138,7 +138,7 @@ export default function Home() {
         </ModalContent>
         <button onClick={closeModal}>Fechar</button>
       </Modal>
-      <h1>Filter</h1>
+      <h1>Filter-next</h1>
       <input
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
